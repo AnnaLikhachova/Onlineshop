@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+                    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <!-- Scans within the base package of the application for @Component classes to configure as beans -->
+    <context:component-scan base-package="com.likhachova.*"/>
+
+    <bean id="securityService" class="com.likhachova.service.SecurityService">
+        <constructor-arg ref="userService"/>
+        <constructor-arg ref="passwordEncoder"/>
+    </bean>
+
+    <bean id="passwordEncoder" class="com.likhachova.web.security.PasswordEncoder"/>
+
+    <bean id="cookieUtil" class="com.likhachova.util.CookieUtil"/>
+
+    <bean id="productService" class="com.likhachova.service.ProductService">
+        <constructor-arg ref="jdbcProductDao"/>
+    </bean>
+
+    <bean id="jdbcProductDao" class="com.likhachova.dao.jdbc.JdbcProductDao">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="userService" class="com.likhachova.service.UserService">
+        <constructor-arg ref="jdbcUserDao"/>
+    </bean>
+
+    <bean id="jdbcUserDao" class="com.likhachova.dao.jdbc.JdbcUserDao">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="dataSource" class="com.mysql.cj.jdbc.MysqlDataSource">
+        <property name="url" value="jdbc:mysql://localhost:3306/products?"/>
+        <property name="user" value="products"/>
+        <property name="password" value="password"/>
+    </bean>
+
+    <mvc:annotation-driven/>
+
+</beans>
