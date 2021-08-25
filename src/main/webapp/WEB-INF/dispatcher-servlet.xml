@@ -35,7 +35,7 @@
     </bean>
 
     <bean id="dataSource" class="com.mysql.cj.jdbc.MysqlDataSource">
-        <property name="url" value="jdbc:mysql://us-cdbr-east-04.cleardb.com/heroku_92a6936952c08a5?password=4d091d98&reconnect=true&user=b9a44a4dce4830"/>
+        <property name="url" value="jdbc:mysql://us-cdbr-east-04.cleardb.com/heroku_92a6936952c08a5?password=4d091d98&amp;reconnect=true&amp;user=b9a44a4dce4830"/>
         <property name="user" value="b9a44a4dce4830"/>
         <property name="password" value="4d091d98"/>
     </bean>
