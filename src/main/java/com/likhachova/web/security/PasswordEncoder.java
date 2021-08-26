@@ -1,19 +1,20 @@
 package com.likhachova.web.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class PasswordEncoder {
 
+    private static final Logger logger = LoggerFactory.getLogger(PasswordEncoder.class);
 
-    private final String saltString = "This string is for salt";
-
-    public PasswordEncoder() {
-        generateSalt();
-    }
+    private static  final String STRING_IS_FOR_SALT = "This string is for salt";
 
     public String hash(String passwordToHash) {
+        generateSalt();
         String generatedPassword = null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -25,7 +26,8 @@ public class PasswordEncoder {
             generatedPassword = sb.toString();
         }
         catch(NoSuchAlgorithmException e) {
-            //LOGGER.error("Cannot hash password", e);
+            logger.error("Cannot hash password", e);
+            throw new RuntimeException("Cannot hash password", e);
         }
         return generatedPassword;
     }
@@ -36,14 +38,14 @@ public class PasswordEncoder {
     }
 
     private void generateSalt() {
-        byte[] salt = saltString.getBytes();
+        byte[] salt = STRING_IS_FOR_SALT.getBytes();
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-512");
             md.update(salt);
         }
         catch(NoSuchAlgorithmException e) {
-           // LOGGER.error("Cannot generate salt", e);
+           logger.error("Cannot update salt algorithm", e);
         }
     }
 }

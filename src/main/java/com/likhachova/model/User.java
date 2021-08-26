@@ -11,8 +11,15 @@ public class User {
     private int id;
     private String name;
     private String password;
+    private Role role;
 
     public User(String name, String password) {
+        this.name = name;
+        this.password = password;
+    }
+
+    public User(int id, String name, String password) {
+        this.id = id;
         this.name = name;
         this.password = password;
     }
@@ -24,11 +31,12 @@ public class User {
         User user = (User) o;
         return id == user.id &&
                 Objects.equals(name, user.name) &&
-                Objects.equals(password, user.password);
+                Objects.equals(password, user.password) &&
+                Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, password);
+        return Objects.hash(id, name, password, role);
     }
 }

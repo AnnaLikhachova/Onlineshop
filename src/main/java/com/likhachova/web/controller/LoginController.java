@@ -7,7 +7,10 @@ import com.likhachova.service.UserService;
 import com.likhachova.util.CookieUtil;
 import com.likhachova.util.PageGenerator;
 import com.likhachova.web.security.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,8 @@ import java.util.Map;
 @Controller
 public class LoginController {
 
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
     @Autowired
     private ProductService productService;
 
@@ -35,6 +40,9 @@ public class LoginController {
 
     @Autowired
     private CookieUtil cookieUtil;
+
+    @Value( "${cookies.expire.date}" )
+    private String cookieExpireDate;
 
     @RequestMapping(value = { "/login"}, method = RequestMethod.GET)
     public void login(HttpServletResponse response) throws IOException {
@@ -46,20 +54,24 @@ public class LoginController {
         Map<String, Object> pageVariables = new HashMap<>();
         String token = securityService.login(login, password);
         if( token != null){
-            Session session = securityService.getSession(token);
-            httpServletRequest.setAttribute("session", session);
+            Session session = securityService.getSession(token); // TODO: add roles to session
             List<Product> products = productService.getAllProducts();
             pageVariables.put("products", products);
             response.setContentType("text/html;charset=utf-8");
             if(securityService.isUserAdmin(login,password)){
-                response.addCookie(new Cookie(token, "admin-token"));
+                Cookie adminCookie = new Cookie(token, "admin-token");
+                adminCookie.setMaxAge(Integer.parseInt(cookieExpireDate));
+                response.addCookie(adminCookie);
                 response.getWriter().println(PageGenerator.getInstance().getPage("admin.ftl", pageVariables));
             } else{
-                response.addCookie(new Cookie(token, "user-token"));
+                Cookie userCookie = new Cookie(token, "user-token");
+                userCookie.setMaxAge(Integer.parseInt(cookieExpireDate));
+                response.addCookie(userCookie);
                 response.getWriter().println(PageGenerator.getInstance().getPage("allproducts.ftl", pageVariables));
             }
         } else {
             pageVariables.put("message","No user with such login. Try again.");
+            logger.debug("No user with such username");
             response.setContentType("text/html;charset=utf-8");
             response.getWriter().println(PageGenerator.getInstance().getPage("login.ftl", pageVariables));
         }
@@ -68,8 +80,11 @@ public class LoginController {
     @RequestMapping(value = { "/logout"}, method = RequestMethod.GET)
     @ResponseBody
     public String logout(HttpServletRequest request,  HttpServletResponse response) {
-      request.setAttribute("session", null);
       cookieUtil.eraseCookie(request,response);
+      Session session = cookieUtil.getUserSessionFromRequest(request);
+      if(session != null){
+          securityService.logout(session.getSessionId());
+      }
       return PageGenerator.getInstance().getPage("login.ftl", null);
     }
 

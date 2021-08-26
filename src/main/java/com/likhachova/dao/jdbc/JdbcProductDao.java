@@ -12,6 +12,13 @@ import java.util.List;
 public class JdbcProductDao implements ProductDao {
 
     private DataSource dataSource;
+    private static final String SELECT_ALL = "SELECT * FROM products;";
+    private static final String UPDATE_PRODUCT = "UPDATE products SET name = ?, price = ?, description= ?, date = ? WHERE id = ?;";
+    private static final String INSERT_PRODUCT = "INSERT INTO products (name, price, description, date) Values (?, ?, ?, ?);";
+    private static final String DELETE_PRODUCT = "DELETE FROM products WHERE id = ?;";
+    private static final String SELECT_PRODUCT_BY_ID = "SELECT id, name, description, price, date FROM products WHERE id = ?;";
+    private static final String SELECT_PRODUCT_BY_NAME = "SELECT id, name, price, description, date FROM products WHERE name = ?;";
+    private static final String SELECT_LIKE = "SELECT * FROM products WHERE description LIKE ? OR name LIKE ?;";
 
     public JdbcProductDao(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -19,16 +26,14 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public List<Product> getAllProducts() {
-        String query = "SELECT * FROM products;";
-        return getAllProducts(query);
+        return getAllProducts(SELECT_ALL);
     }
 
     @Override
     public void updateProduct(Product product) {
-        String query = "UPDATE products SET name = ?, price = ?, description= ?, date = ? WHERE id = ?;";
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query)
+                PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PRODUCT)
         ) {
             preparedStatement.setString(1, product.getName());
             preparedStatement.setInt(2, product.getPrice());
@@ -44,10 +49,9 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public void addProduct(Product product) {
-        String query = "INSERT INTO products (name, price, description, date) Values (?, ?, ?, ?);";
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query)
+                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PRODUCT)
         ) {
             preparedStatement.setString(1, product.getName());
             preparedStatement.setInt(2, product.getPrice());
@@ -62,10 +66,9 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public void deleteProduct(int id) {
-        String query = "DELETE FROM products WHERE id = ?;";
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query)
+                PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PRODUCT)
         ) {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
@@ -77,11 +80,10 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public Product getProductById(int id) {
-        String query = "SELECT id, name, description, price, date FROM products WHERE id = ?;";
         Product product;
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PRODUCT_BY_ID);
         ) {
             preparedStatement.setInt(1, id);
             try(ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -96,15 +98,15 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public Product getProductByName(String name) {
-        String query = "SELECT id, name, price, date FROM products WHERE name = ?;";
         Product product;
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                ResultSet resultSet = preparedStatement.executeQuery()
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PRODUCT_BY_NAME);
         ) {
             preparedStatement.setString(1, name);
-            product = getProductFromResultSet(resultSet);
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                product = getProductFromResultSet(resultSet);
+            }
         }
         catch(SQLException e) {
             throw new RuntimeException("Cannot get product from database", e);
@@ -114,13 +116,14 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public List<Product> getProductsByDescription(String description) {
-        String query = "SELECT * FROM products WHERE description LIKE ? OR name LIKE ?;";
         List<Product> products;
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query)){
-            preparedStatement.setString(1, "%"+description+"%");
-            preparedStatement.setString(2, "%"+description+"%");
-            try( ResultSet resultSet = preparedStatement.executeQuery();){
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LIKE)
+        ) {
+            preparedStatement.setString(1, "%" + description + "%");
+            preparedStatement.setString(2, "%" + description + "%");
+            try(ResultSet resultSet = preparedStatement.executeQuery();) {
                 products = getAllProductsByDescriptionFromResultSet(resultSet);
             }
         }

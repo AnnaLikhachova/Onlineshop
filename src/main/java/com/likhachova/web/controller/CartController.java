@@ -5,6 +5,8 @@ import com.likhachova.service.ProductService;
 import com.likhachova.util.CookieUtil;
 import com.likhachova.util.PageGenerator;
 import com.likhachova.web.security.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Controller
 public class CartController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CartController.class);
+
     @Autowired
     private ProductService productService;
 
@@ -36,9 +40,14 @@ public class CartController {
             Map<Product, Integer> cart = session.getCart();
             if(cart != null) {
                 pageVariables.put("cart", cart);
+                response.getWriter().print(PageGenerator.getInstance().getPage("cart.ftl", pageVariables));
             }
+        } else {
+            pageVariables.put("message", "You are not authorized to add product to the cart. Please log in.");
+            logger.debug("User is not authorized to see to the cart.");
+            response.getWriter().print(PageGenerator.getInstance().getPage("error.ftl", pageVariables));
         }
-        response.getWriter().print(PageGenerator.getInstance().getPage("cart.ftl", pageVariables));
+
     }
 
     @RequestMapping(value = {"/cart/increase"}, method = RequestMethod.POST)
@@ -63,7 +72,8 @@ public class CartController {
             return PageGenerator.getInstance().getPage("cart.ftl", pageVariables);
         }
         else {
-            pageVariables.put("message", "You are not authorized to add product to the cart. Please log in.");
+            pageVariables.put("message", "You are not authorized to increase product in the cart. Please log in.");
+            logger.debug("User is not authorized to increase product in the cart");
             return PageGenerator.getInstance().getPage("error.ftl", pageVariables);
         }
     }
@@ -95,7 +105,8 @@ public class CartController {
             return PageGenerator.getInstance().getPage("cart.ftl", pageVariables);
         }
         else {
-            pageVariables.put("message", "You are not authorized to add product to the cart. Please log in.");
+            pageVariables.put("message", "You are not authorized to decrease product in the cart. Please log in.");
+            logger.debug("User is not authorized to decrease product in the cart");
             return PageGenerator.getInstance().getPage("error.ftl", pageVariables);
         }
     }

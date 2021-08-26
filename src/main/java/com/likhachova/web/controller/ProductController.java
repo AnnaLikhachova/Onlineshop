@@ -5,6 +5,8 @@ import com.likhachova.service.ProductService;
 import com.likhachova.util.PageGenerator;
 import com.likhachova.util.CookieUtil;
 import com.likhachova.web.security.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.*;
 
 @Controller
 public class ProductController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @Autowired
     private ProductService productService;
