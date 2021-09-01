@@ -27,7 +27,7 @@ public class SecurityService {
 
     public String login(String userName, String userPassword) {
         if(isUserAuthorized(userName, userPassword)) {
-            logger.debug("isUserAuthorized() is executed, value {}", userName, userPassword);
+            logger.debug("isUserAuthorized() is executed");
             return generateAndRegisterTokenForUser(new User(userName, userPassword));
         }
         return null;

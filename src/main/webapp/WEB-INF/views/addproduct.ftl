@@ -20,7 +20,7 @@
     </nav>
 </div>
 <div class="container mt-5">
-    <form action="/products/add" method="POST">
+    <form action="/admin/products/add" method="POST">
         <div class="d-flex flex-column align-items-center">
             <div class="row w-100 p-2 d-flex flex-row">
                 <h5 class="col-4">Product name:</h5>

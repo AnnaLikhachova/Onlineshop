@@ -16,7 +16,7 @@
 </div>
 <div class="container">
     <h2 class="text-danger m-3">Welcome to product shop!</h2>
-    <img alt="image" src="${mainImage}">
+    <img alt="image" src="images/products.jpg" />
 </div>
 </body>
 </html>

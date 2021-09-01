@@ -13,17 +13,36 @@ public class CookieUtil {
     @Autowired
     SecurityService securityService;
 
-    public Session getUserSessionFromRequest(HttpServletRequest httpServletRequest){
-        Session session = null;
+    public Session getUserSessionByCookie(HttpServletRequest httpServletRequest){
+        Session session;
         Cookie[] cookies = httpServletRequest.getCookies();
         if(cookies != null) {
             for(Cookie c : cookies) {
-                if(c.getValue().equals("admin-token") || c.getValue().equals("user-token")) {
+                if(c.getValue().equals("user-token")) {
                     session = securityService.getSession(c.getName());
+                    if(session != null){
+                        return session;
+                    }
                 }
             }
         }
-        return session;
+        return null;
+    }
+
+    public Session getAdminSessionByCookie(HttpServletRequest httpServletRequest){
+        Session session;
+        Cookie[] cookies = httpServletRequest.getCookies();
+        if(cookies != null) {
+            for(Cookie c : cookies) {
+                if(c.getValue().equals("admin-token")) {
+                    session = securityService.getSession(c.getName());
+                    if(session != null){
+                        return session;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public void eraseCookie(HttpServletRequest req, HttpServletResponse resp) {

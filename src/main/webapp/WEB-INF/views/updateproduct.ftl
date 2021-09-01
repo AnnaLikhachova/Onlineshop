@@ -11,7 +11,7 @@
 <div class="container">
     <nav class="navbar navbar-expand-lg navbar-light bg-light mt-5 d-flex flex-row justify-content-around">
         <h3 class="nav-item p-2"><a href="/admin" class="nav-link text-warning">All Products</a></h3>
-        <h3 class="nav-item p-2"><a href="/products/addproduct" class="nav-link text-warning">Add Product</a></h3>
+        <h3 class="nav-item p-2"><a href="/addproduct" class="nav-link text-warning">Add Product</a></h3>
         <div>
             <form class="mb-0" action="/logout" method="GET">
                 <input class="text-warning" type="submit" value="Logout"/>

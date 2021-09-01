@@ -9,11 +9,17 @@
 <body>
 <div class="container">
     <nav class="navbar navbar-expand-lg navbar-light bg-light mt-5 d-flex flex-row justify-content-around">
-        <h3 class="nav-item p-2"><a href="/admin" class="nav-link text-dark">Admin Page</a></h3>
-        <h3 class="nav-item p-2"><a href="/addproduct" class="nav-link text-warning">Add Product</a></h3>
+        <h3 class="nav-item p-2"><a href="/allproducts" class="nav-link text-dark">All Products</a></h3>
+        <h3 class="nav-item p-2"><a href="/cart" class="nav-link text-warning">Cart</a></h3>
         <div>
             <form class="mb-0" action="/logout" method="GET">
                 <input class="text-warning" type="submit" value="Logout"/>
+            </form>
+        </div>
+        <div>
+            <form class="mb-0" action="/user/allproducts/search" method="GET">
+                <input type="text" name="search"/>
+                <input class="text-warning" type="submit" value="Search"/>
             </form>
         </div>
     </nav>
@@ -37,7 +43,7 @@
                                 <th>Price</th>
                                 <th>Description</th>
                                 <th>Date</th>
-                                <th colspan="2">Action</th>
+                                <th>Cart</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -50,16 +56,8 @@
                                    <td>${product.description}</td>
                                    <td>${product.date}</td>
                                    <td>
-                                    <span class="badge bg-danger">
-                                        <form class="mb-0" action="/products/delete" method="POST">
-                                            <input hidden="text" value=${product.id} name="id"/>
-                                            <input class="border border-danger bg-danger" type="submit" value="DELETE""/>
-                                        </form>
-                                    </span>
-                                   </td>
-                                   <td>
-                                       <span class="badge bg-warning p-1"><a href="/products/update/${product.id}"
-                                                                             class="text-decoration-none text-reset m-1">UPDATE</a></span>
+                                       <span class="badge bg-warning p-1"><a href="/user/allproducts/addtocart/${product.id}"
+                                                                             class="text-decoration-none text-reset m-1">Add to cart</a></span>
                                    </td>
                                </tr>
                                </#list>

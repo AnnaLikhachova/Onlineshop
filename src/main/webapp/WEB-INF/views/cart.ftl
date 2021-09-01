@@ -51,7 +51,7 @@
                                    <td>${product.date}</td>
                                    <td>
                                     <span class="badge bg-danger">
-                                        <form class="mb-0" action="/cart/decrease" method="POST">
+                                        <form class="mb-0" action="/user/cart/decrease" method="POST">
                                             <input hidden="text" value=${product.id} name="id"/>
                                             <input class="border border-danger bg-danger" type="submit" value="-""/>
                                         </form>
@@ -62,7 +62,7 @@
                                    </td>
                                    <td>
                                         <span class="badge bg-danger">
-                                        <form class="mb-0" action="/cart/increase" method="POST">
+                                        <form class="mb-0" action="/user/cart/increase" method="POST">
                                             <input hidden="text" value=${product.id} name="id"/>
                                             <input class="border border-danger bg-danger" type="submit" value="+""/>
                                         </form>

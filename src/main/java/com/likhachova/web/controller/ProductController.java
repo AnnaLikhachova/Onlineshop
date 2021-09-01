@@ -2,17 +2,16 @@ package com.likhachova.web.controller;
 
 import com.likhachova.model.Product;
 import com.likhachova.service.ProductService;
-import com.likhachova.util.PageGenerator;
 import com.likhachova.util.CookieUtil;
 import com.likhachova.web.security.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -28,29 +27,25 @@ public class ProductController {
     private CookieUtil cookieUtil;
 
     @RequestMapping(value = {"/allproducts"}, method = RequestMethod.GET)
-    public void allproducts(HttpServletResponse response) throws IOException {
-        Map<String, Object> pageVariables = new HashMap<>();
+    public String allproducts(Model model,  HttpServletRequest httpServletRequest) throws IOException {
         List<Product> products = productService.getAllProducts();
-        pageVariables.put("products", products);
-        response.getWriter().print(PageGenerator.getInstance().getPage("allproducts.ftl", pageVariables));
+        model.addAttribute("products", products);
+        httpServletRequest.setAttribute("products", products);
+        return "allproducts";
     }
 
-    @RequestMapping(value = {"/allproducts/search"}, method = RequestMethod.GET)
-    @ResponseBody
-    public String search(@RequestParam String search) {
-        Map<String, Object> pageVariables = new HashMap<>();
+    @RequestMapping(value = {"/user/allproducts/search"}, method = RequestMethod.GET)
+    public String search(@RequestParam String search, Model model,  HttpServletRequest httpServletRequest) {
         List<Product> products = productService.getProductsByDescription(search);
-        pageVariables.put("products", products);
-        String page = PageGenerator.getInstance().getPage("allproducts.ftl", pageVariables);
-        return page;
+        model.addAttribute("products", products);
+        httpServletRequest.setAttribute("products", products);
+        return "allproducts";
     }
 
-    @RequestMapping(value = {"/allproducts/addtocart/{id}"}, method = RequestMethod.GET)
-    @ResponseBody
-    public String addtocart(@PathVariable String id, HttpServletRequest httpServletRequest) {
-        Map<String, Object> pageVariables = new HashMap<>();
+    @RequestMapping(value = {"/user/allproducts/addtocart/{id}"}, method = RequestMethod.GET)
+    public String addtocart(@PathVariable String id, HttpServletRequest httpServletRequest, Model model) {
         Product product = productService.getProduct(Integer.parseInt(id));
-        Session session = cookieUtil.getUserSessionFromRequest(httpServletRequest);
+        Session session = cookieUtil.getUserSessionByCookie(httpServletRequest);
         Map<Product, Integer> cart;
         if(session != null) {
             cart = session.getCart();
@@ -58,24 +53,28 @@ public class ProductController {
                 if(cart.containsKey(product)) {
                     int quantity = cart.get(product);
                     cart.put(product, ++quantity);
+                    logger.debug("Product {} was added to the cart", product.getName());
                 }
                 else {
                     cart.put(product, 1);
+                    logger.debug("Product {} was added to the cart", product.getName());
                 }
             }
             else {
                 cart = new HashMap<>();
                 cart.put(product, 1);
+                logger.debug("Product {} was added to the cart", product.getName());
             }
             session.setCart(cart);
             httpServletRequest.setAttribute("session", session);
             List<Product> products = productService.getAllProducts();
-            pageVariables.put("products", products);
-            return PageGenerator.getInstance().getPage("allproducts.ftl", pageVariables);
+            model.addAttribute("products", products);
+            httpServletRequest.setAttribute("products", products);
+            return "allproducts";
         }
         else {
-            pageVariables.put("message", "You are not authorized to add product to the cart. Please log in.");
-            return PageGenerator.getInstance().getPage("error.ftl", pageVariables);
+            model.addAttribute("message", "You are not authorized to add product to the cart. Please log in.");
+            return "allproducts";
         }
     }
 }
